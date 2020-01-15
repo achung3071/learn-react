@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
+import "antd/dist/antd.css";
+import ProductTable from "./components/ProductTable";
+import SizeChart from "./components/SizeChart";
 
 const App = () => {
   const [data, setData] = useState({});
@@ -13,11 +16,10 @@ const App = () => {
   }, []);
 
   return (
-    <ul>
-      {products.map(product => (
-        <li key={product.sku}>{product.title}</li>
-      ))}
-    </ul>
+    <Fragment>
+      <SizeChart />
+      <ProductTable products={products} />
+    </Fragment>
   );
 };
 
