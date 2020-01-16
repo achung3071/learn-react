@@ -7,6 +7,7 @@ const CartProduct = ({ product }) => {
       <p>{product.title}</p>
       <p>{product.currencyFormat + product.price}</p>
       <p>Size: {product.size}</p>
+      <p>Quantity: {product.quantity}</p>
       {product.isFreeShipping && <p>Free Shipping</p>}
     </div>
   );
