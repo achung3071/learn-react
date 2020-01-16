@@ -1,8 +1,8 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
 import Cart from "./components/Cart";
+import CartProvider from "./contexts/CartContext";
 import ProductTable from "./components/ProductTable";
-import SizeChart from "./components/SizeChart";
 
 const App = () => {
   const [data, setData] = useState({});
@@ -17,11 +17,10 @@ const App = () => {
   }, []);
 
   return (
-    <Fragment>
+    <CartProvider>
       <Cart />
-      <SizeChart />
       <ProductTable products={products} />
-    </Fragment>
+    </CartProvider>
   );
 };
 
