@@ -6,6 +6,10 @@ import CartProduct from "./CartProduct";
 const Cart = () => {
   const [visible, setVisible] = useState(false);
   const { cartProducts } = useContext(CartContext);
+  const total = cartProducts.reduce(
+    (acc, prod) => acc + prod.price * prod.quantity,
+    0
+  );
   return (
     <div style={{ textAlign: "right" }}>
       <Button onClick={() => setVisible(true)} icon="menu" />
@@ -13,6 +17,7 @@ const Cart = () => {
         {cartProducts.map((product, i) => (
           <CartProduct key={i} product={product} />
         ))}
+        <h3>Total: ${total.toFixed(2)}</h3>
       </Drawer>
     </div>
   );
