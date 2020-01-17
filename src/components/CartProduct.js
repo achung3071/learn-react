@@ -1,10 +1,16 @@
 import React, { useContext } from "react";
 import { Button } from "antd";
 import { CartContext } from "../contexts/CartContext";
+import { InventoryContext } from "../contexts/InventoryContext";
 
 const CartProduct = ({ product }) => {
   const { cartProducts, setCartProducts } = useContext(CartContext);
+  const { inventory, setInventory } = useContext(InventoryContext);
+
   const increment = () => {
+    const newInventory = { ...inventory };
+    newInventory[product.sku][product.size]--;
+    setInventory(newInventory);
     const newCartProducts = [...cartProducts];
     const productIndex = cartProducts.indexOf(product);
     newCartProducts[productIndex].quantity++;
@@ -12,6 +18,9 @@ const CartProduct = ({ product }) => {
   };
 
   const decrement = () => {
+    const newInventory = { ...inventory };
+    newInventory[product.sku][product.size]++;
+    setInventory(newInventory);
     const newCartProducts = [...cartProducts];
     const productIndex = cartProducts.indexOf(product);
     newCartProducts[productIndex].quantity--;
@@ -28,7 +37,11 @@ const CartProduct = ({ product }) => {
       <p>{product.currencyFormat + product.price.toFixed(2)}</p>
       <p>Size: {product.size}</p>
       <span>Quantity: {product.quantity}</span>
-      <Button icon="plus" onClick={increment} />
+      <Button
+        icon="plus"
+        onClick={increment}
+        disabled={!inventory[product.sku][product.size]}
+      />
       <Button icon="minus" onClick={decrement} />
       {product.isFreeShipping && <p>Free Shipping</p>}
     </div>

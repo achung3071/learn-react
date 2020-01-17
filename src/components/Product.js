@@ -1,9 +1,12 @@
 import React, { useContext } from "react";
 import { CartContext } from "../contexts/CartContext";
+import { InventoryContext } from "../contexts/InventoryContext";
 import { Button } from "antd";
 
 const Product = ({ product }) => {
   const { cartProducts, setCartProducts } = useContext(CartContext);
+  const { inventory, setInventory } = useContext(InventoryContext);
+
   const getIndexInCart = size => {
     for (let i = 0; i < cartProducts.length; i++) {
       if (
@@ -25,6 +28,9 @@ const Product = ({ product }) => {
     } else {
       setCartProducts([...cartProducts, { ...product, size, quantity: 1 }]);
     }
+    const newInventory = { ...inventory };
+    newInventory[product.sku][size]--;
+    setInventory(newInventory);
   };
 
   return (
@@ -34,8 +40,14 @@ const Product = ({ product }) => {
       <p>{product.currencyFormat + product.price.toFixed(2)}</p>
       {product.isFreeShipping && <p>Free Shipping</p>}
       {["S", "M", "L", "XL"].map((size, i) => {
+        const outOfStock = !inventory[product.sku][size];
         return (
-          <Button key={i} type="primary" onClick={() => addToCart(size)}>
+          <Button
+            key={i}
+            type="primary"
+            onClick={() => addToCart(size)}
+            disabled={outOfStock}
+          >
             {size}
           </Button>
         );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
 import Cart from "./components/Cart";
 import CartProvider from "./contexts/CartContext";
+import InventoryProvider from "./contexts/InventoryContext";
 import ProductTable from "./components/ProductTable";
 
 const App = () => {
@@ -18,8 +19,10 @@ const App = () => {
 
   return (
     <CartProvider>
-      <Cart />
-      <ProductTable products={products} />
+      <InventoryProvider>
+        <Cart />
+        <ProductTable products={products} />
+      </InventoryProvider>
     </CartProvider>
   );
 };
