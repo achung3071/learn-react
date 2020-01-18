@@ -25,7 +25,7 @@ const App = () => {
   };
 
   return (
-    <CartProvider>
+    <CartProvider user={user}>
       <InventoryProvider>
         {user ? (
           <div>
