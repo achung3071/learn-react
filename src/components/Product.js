@@ -34,9 +34,11 @@ const Product = ({ setCartVisible, product }) => {
     setCartVisible(true);
   };
 
-  const outOfStock = !Object.values(inventory[product.sku]).reduce(
-    (acc, quantity) => acc + quantity
-  );
+  const outOfStock =
+    Object.keys(inventory).length &&
+    !Object.values(inventory[product.sku]).reduce(
+      (acc, quantity) => acc + quantity
+    );
 
   return (
     <div>
@@ -48,7 +50,8 @@ const Product = ({ setCartVisible, product }) => {
         <p>Out of Stock</p>
       ) : (
         ["S", "M", "L", "XL"].map((size, i) => {
-          const disabled = !inventory[product.sku][size];
+          const disabled =
+            Object.keys(inventory).length && !inventory[product.sku][size];
           return (
             <Button
               key={i}
