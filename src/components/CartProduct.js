@@ -1,16 +1,11 @@
 import React, { useContext } from "react";
 import { Button } from "antd";
-import { CartContext } from "../contexts/CartContext";
-import { InventoryContext } from "../contexts/InventoryContext";
+import { MainContext } from "../contexts/MainContext";
 
 const CartProduct = ({ product }) => {
-  const { cartProducts, setCartProducts } = useContext(CartContext);
-  const { inventory, setInventory } = useContext(InventoryContext);
+  const { inventory, cartProducts, setCartProducts } = useContext(MainContext);
 
   const increment = () => {
-    const newInventory = { ...inventory };
-    newInventory[product.sku][product.size]--;
-    setInventory(newInventory);
     const newCartProducts = [...cartProducts];
     const productIndex = cartProducts.indexOf(product);
     newCartProducts[productIndex].quantity++;
@@ -18,9 +13,6 @@ const CartProduct = ({ product }) => {
   };
 
   const decrement = () => {
-    const newInventory = { ...inventory };
-    newInventory[product.sku][product.size]++;
-    setInventory(newInventory);
     const newCartProducts = [...cartProducts];
     const productIndex = cartProducts.indexOf(product);
     newCartProducts[productIndex].quantity--;

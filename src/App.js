@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 import "antd/dist/antd.css";
 import { Button } from "antd";
 import Cart from "./components/Cart";
-import CartProvider from "./contexts/CartContext";
+import { MainContext } from "./contexts/MainContext";
 import firebase from "firebase/app";
 import "firebase/auth";
-import InventoryProvider from "./contexts/InventoryContext";
 import ProductTable from "./components/ProductTable";
 import { StyledFirebaseAuth } from "react-firebaseui";
 
 const App = () => {
   const [cartVisible, setCartVisible] = useState(false);
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged(setUser);
-  }, []);
+  const { user } = useContext(MainContext);
 
   const authConfig = {
     signInFlow: "popup",
@@ -25,23 +21,21 @@ const App = () => {
   };
 
   return (
-    <CartProvider user={user}>
-      <InventoryProvider>
-        {user ? (
-          <div>
-            <h1>Welcome, {user.displayName}</h1>
-            <Button onClick={() => firebase.auth().signOut()}>Log Out</Button>
-          </div>
-        ) : (
-          <StyledFirebaseAuth
-            uiConfig={authConfig}
-            firebaseAuth={firebase.auth()}
-          />
-        )}
-        <Cart state={{ cartVisible, setCartVisible }} />
-        <ProductTable setCartVisible={setCartVisible} />
-      </InventoryProvider>
-    </CartProvider>
+    <Fragment>
+      {user ? (
+        <div>
+          <h1>Welcome, {user.displayName}</h1>
+          <Button onClick={() => firebase.auth().signOut()}>Log Out</Button>
+        </div>
+      ) : (
+        <StyledFirebaseAuth
+          uiConfig={authConfig}
+          firebaseAuth={firebase.auth()}
+        />
+      )}
+      <Cart state={{ cartVisible, setCartVisible }} />
+      <ProductTable setCartVisible={setCartVisible} />
+    </Fragment>
   );
 };
 

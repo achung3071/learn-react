@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 import { Drawer, Button } from "antd";
-import { CartContext } from "../contexts/CartContext";
+import { MainContext } from "../contexts/MainContext";
 import CartProduct from "./CartProduct";
 
 const Cart = ({ state }) => {
   const { cartVisible, setCartVisible } = state;
-  const { cartProducts } = useContext(CartContext);
+  const { cartProducts } = useContext(MainContext);
   const total = cartProducts.reduce(
     (acc, prod) => acc + prod.price * prod.quantity,
     0
