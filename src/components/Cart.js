@@ -1,10 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { Drawer, Button } from "antd";
 import { CartContext } from "../contexts/CartContext";
 import CartProduct from "./CartProduct";
 
-const Cart = () => {
-  const [visible, setVisible] = useState(false);
+const Cart = ({ state }) => {
+  const { cartVisible, setCartVisible } = state;
   const { cartProducts } = useContext(CartContext);
   const total = cartProducts.reduce(
     (acc, prod) => acc + prod.price * prod.quantity,
@@ -12,8 +12,8 @@ const Cart = () => {
   );
   return (
     <div style={{ textAlign: "right" }}>
-      <Button onClick={() => setVisible(true)} icon="menu" />
-      <Drawer onClose={() => setVisible(false)} visible={visible}>
+      <Button onClick={() => setCartVisible(true)} icon="menu" />
+      <Drawer onClose={() => setCartVisible(false)} visible={cartVisible}>
         {cartProducts.map((product, i) => (
           <CartProduct key={i} product={product} />
         ))}

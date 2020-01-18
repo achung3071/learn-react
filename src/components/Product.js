@@ -3,7 +3,7 @@ import { CartContext } from "../contexts/CartContext";
 import { InventoryContext } from "../contexts/InventoryContext";
 import { Button } from "antd";
 
-const Product = ({ product }) => {
+const Product = ({ setCartVisible, product }) => {
   const { cartProducts, setCartProducts } = useContext(CartContext);
   const { inventory, setInventory } = useContext(InventoryContext);
 
@@ -31,7 +31,12 @@ const Product = ({ product }) => {
     const newInventory = { ...inventory };
     newInventory[product.sku][size]--;
     setInventory(newInventory);
+    setCartVisible(true);
   };
+
+  const outOfStock = !Object.values(inventory[product.sku]).reduce(
+    (acc, quantity) => acc + quantity
+  );
 
   return (
     <div>
@@ -39,19 +44,23 @@ const Product = ({ product }) => {
       <p>{product.title}</p>
       <p>{product.currencyFormat + product.price.toFixed(2)}</p>
       {product.isFreeShipping && <p>Free Shipping</p>}
-      {["S", "M", "L", "XL"].map((size, i) => {
-        const outOfStock = !inventory[product.sku][size];
-        return (
-          <Button
-            key={i}
-            type="primary"
-            onClick={() => addToCart(size)}
-            disabled={outOfStock}
-          >
-            {size}
-          </Button>
-        );
-      })}
+      {outOfStock ? (
+        <p>Out of Stock</p>
+      ) : (
+        ["S", "M", "L", "XL"].map((size, i) => {
+          const disabled = !inventory[product.sku][size];
+          return (
+            <Button
+              key={i}
+              type="primary"
+              onClick={() => addToCart(size)}
+              disabled={disabled}
+            >
+              {size}
+            </Button>
+          );
+        })
+      )}
     </div>
   );
 };

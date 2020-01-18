@@ -7,6 +7,7 @@ import ProductTable from "./components/ProductTable";
 
 const App = () => {
   const [data, setData] = useState({});
+  const [cartVisible, setCartVisible] = useState(false);
   const products = Object.values(data);
   useEffect(() => {
     const fetchProducts = async () => {
@@ -20,8 +21,8 @@ const App = () => {
   return (
     <CartProvider>
       <InventoryProvider>
-        <Cart />
-        <ProductTable products={products} />
+        <Cart state={{ cartVisible, setCartVisible }} />
+        <ProductTable setCartVisible={setCartVisible} products={products} />
       </InventoryProvider>
     </CartProvider>
   );
