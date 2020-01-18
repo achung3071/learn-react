@@ -1,8 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Row, Col } from "antd";
 import Product from "./Product";
 
-const ProductTable = ({ setCartVisible, products }) => {
+const ProductTable = ({ setCartVisible }) => {
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const response = await fetch("./data/products.json");
+      const json = await response.json();
+      setProducts(Object.values(json));
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <Row>
       {products.map((product, i) => (
