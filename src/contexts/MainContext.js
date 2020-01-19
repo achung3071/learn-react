@@ -55,23 +55,55 @@ const MainProvider = props => {
   }, [user, cartProducts, prevCart]);
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged(async user => {
-      setUser(user);
-      if (user) {
-        const shoppingCart = await db
-          .child(`carts/${user.uid}`)
-          .once("value")
-          .then(snap => snap.val());
-        if (shoppingCart) {
-          setCartProducts(shoppingCart);
+    firebase.auth().onAuthStateChanged(setUser);
+  }, []);
+
+  const prevUser = usePrevious(user);
+  useEffect(() => {
+    const addToCartProducts = savedCart => {
+      if (!cartProducts.length) {
+        return savedCart;
+      }
+      const newCart = [...cartProducts];
+      for (const product of savedCart) {
+        for (let i = 0; i < newCart.length; i++) {
+          const existing = newCart[i];
+          if (existing.sku === product.sku && existing.size === product.size) {
+            if (product.quantity > inventory[product.sku][product.size]) {
+              alert(
+                `Requested quantity of ${product.title} (size ${product.size}) exceeds the available stock. Max stock has been added to the cart.`
+              );
+              existing.quantity =
+                existing.quantity + inventory[product.sku][product.size];
+            } else {
+              existing.quantity = existing.quantity + product.quantity;
+            }
+            break;
+          } else if (i === newCart.length - 1) {
+            // product does not exist in original cart
+            newCart.push(product);
+          }
         }
       }
-    });
-  }, []);
+      return newCart;
+    };
+    if (!prevUser && user) {
+      // On Google login only
+      db.child(`carts/${user.uid}`)
+        .once("value")
+        .then(snap => {
+          const shoppingCart = snap.val();
+          if (shoppingCart) {
+            const newCartProducts = addToCartProducts(shoppingCart);
+            setCartProducts(newCartProducts);
+          }
+        });
+    }
+  }, [user, cartProducts, inventory, prevUser]);
 
   return (
     <MainContext.Provider
-      value={{ user, cartProducts, setCartProducts, inventory, setInventory }}
+      value={{ user, cartProducts, setCartProducts, inventory }}
     >
       {props.children}
     </MainContext.Provider>
@@ -79,31 +111,3 @@ const MainProvider = props => {
 };
 
 export default MainProvider;
-
-/* const { inventory, setInventory } = useContext(InventoryContext);
-  const joinCarts = (originalCart, savedCart) => {
-    const newCart = [...originalCart];
-    const newInventory = { ...inventory };
-    for (const product of savedCart) {
-      if (!newCart.length && newInventory.length) {
-        newCart.push(product);
-        newInventory[product.sku][product.size] -= product.quantity;
-      }
-      for (let i = 0; i < newCart.length; i++) {
-        const existing = newCart[i];
-        if (existing.sku === product.sku && existing.size === product.size) {
-          const quantitySum = existing.quantity + product.quantity; // carts added together
-          const inventoryTotal = // max # of products in inventory
-            existing.quantity + inventory[product.sku][product.size];
-          existing.quantity = Math.min(quantitySum, inventoryTotal);
-          newInventory[product.sku][product.size] =
-            inventoryTotal - existing.quantity; // change remaining inventory
-          break;
-        } else if (i === newCart.length - 1) {
-          newCart.push(product);
-          newInventory[product.sku][product.size] -= product.quantity;
-        }
-      }
-    }
-    return { newCart, newInventory };
-  }; */
