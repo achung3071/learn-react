@@ -60,46 +60,61 @@ const MainProvider = props => {
 
   const prevUser = usePrevious(user);
   useEffect(() => {
-    const addToCartProducts = savedCart => {
-      if (!cartProducts.length) {
-        return savedCart;
-      }
+    const addToCartProducts = (savedCart, dbInventory) => {
       const newCart = [...cartProducts];
       for (const product of savedCart) {
+        const totalQuantity = dbInventory[product.sku][product.size];
+        if (!totalQuantity) {
+          alert(
+            `${product.title} is unavailable and has been removed from cart.`
+          );
+          continue; // don't push to cart if inventory is 0
+        } else if (product.quantity > totalQuantity && totalQuantity) {
+          alert(
+            `${product.title} is no longer fully available. Quantity adjusted to ${totalQuantity}.`
+          );
+          product.quantity = totalQuantity;
+        }
+
+        let alreadyInCart = false;
         for (let i = 0; i < newCart.length; i++) {
           const existing = newCart[i];
           if (existing.sku === product.sku && existing.size === product.size) {
-            if (product.quantity > inventory[product.sku][product.size]) {
+            alreadyInCart = true;
+            if (existing.quantity + product.quantity > totalQuantity) {
               alert(
-                `Requested quantity of ${product.title} (size ${product.size}) exceeds the available stock. Max stock has been added to the cart.`
+                `Requested quantity of ${product.title} exceeds available stock. Max stock added to cart.`
               );
-              existing.quantity =
-                existing.quantity + inventory[product.sku][product.size];
+              existing.quantity = totalQuantity;
             } else {
-              existing.quantity = existing.quantity + product.quantity;
+              existing.quantity += product.quantity;
             }
             break;
-          } else if (i === newCart.length - 1) {
-            // product does not exist in original cart
-            newCart.push(product);
           }
+        }
+        if (!alreadyInCart) {
+          newCart.push(product); // push product if not in newCart
         }
       }
       return newCart;
     };
+
     if (!prevUser && user) {
       // On Google login only
-      db.child(`carts/${user.uid}`)
-        .once("value")
-        .then(snap => {
-          const shoppingCart = snap.val();
-          if (shoppingCart) {
-            const newCartProducts = addToCartProducts(shoppingCart);
-            setCartProducts(newCartProducts);
-          }
-        });
+      db.once("value", snap => {
+        const dbInventory = snap.val();
+        db.child(`carts/${user.uid}`)
+          .once("value")
+          .then(snap => {
+            const shoppingCart = snap.val();
+            if (shoppingCart) {
+              const newCart = addToCartProducts(shoppingCart, dbInventory);
+              setCartProducts(newCart);
+            }
+          });
+      });
     }
-  }, [user, cartProducts, inventory, prevUser]);
+  }, [user, prevUser, cartProducts]);
 
   return (
     <MainContext.Provider
