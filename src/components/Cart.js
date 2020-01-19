@@ -9,7 +9,9 @@ const db = firebase.database().ref();
 
 const Cart = ({ state }) => {
   const { cartVisible, setCartVisible } = state;
-  const { cartProducts, inventory, setCartProducts } = useContext(MainContext);
+  const { user, cartProducts, inventory, setCartProducts } = useContext(
+    MainContext
+  );
   const total = cartProducts.reduce(
     (acc, prod) => acc + prod.price * prod.quantity,
     0
@@ -28,7 +30,7 @@ const Cart = ({ state }) => {
           <CartProduct key={i} product={product} />
         ))}
         <h3>Total: ${total.toFixed(2)}</h3>
-        <Button onClick={updateInventory}>Checkout</Button>
+        {user && <Button onClick={updateInventory}>Checkout</Button>}
       </Drawer>
     </div>
   );
